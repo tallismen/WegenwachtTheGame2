@@ -1,0 +1,22 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/anwbDonkerBlauw</item>
+        <item name="colorPrimaryDark">@color/anwbLichtBlauw</item>
+        <item name="colorAccent">@color/anwbGeel</item>
+        <item name="android:textColorPrimary">@color/anwbZwart</item>
+        <item name="android:textColorPrimaryInverse">@color/anwbZwart</item>
+        <item name="android:statusBarColor">@color/anwbDonkerBlauw</item>
+</style>
+
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="myDialog" parent="Theme.AppCompat.Dialog"></style>
+
+</resources>

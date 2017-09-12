@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="anwbGeel">#ffc500</color>
+    <color name="anwbLichtBlauw">#1f87cb</color>
+    <color name="anwbDonkerBlauw">#003d80</color>
+    <color name="anwbZwart">#00101F</color>
+    <color name="anwbWit">#FFFFFF</color>
+    <color name="anwbRood">#ee4406</color>
+    <color name="colorAccent">#F28200</color> 
+    <color name="colorAccent2">#EFAB16</color>
+
+    </resources>
