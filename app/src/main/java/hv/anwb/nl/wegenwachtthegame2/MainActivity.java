@@ -3,6 +3,7 @@ package hv.anwb.nl.wegenwachtthegame2;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,6 +12,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -20,7 +24,29 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
     private String TAG = "MainActivity";
     private ArrayList<Button> buttons;
     private boolean wisselen = true;
+    private boolean erIsGewoonen = false;
 
+    private TextView pechgevalWinText;
+    private TextView wegenwachtWinText;
+
+    private int pechGevalWin;
+    private int wegenwachtWin;
+
+    private Button winImage;
+    private Drawable turnDrawable;
+    private Button turnImage;
+
+    private Button links_boven;
+    private Button midden_boven;
+    private Button rechts_boven;
+
+    private Button links_midden;
+    private Button midden_midden;
+    private Button rechts_midden;
+
+    private Button links_onder;
+    private Button midden_onder;
+    private Button rechts_onder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +56,16 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
         ToolbarUtil.setupActionBar(this, this, getString(R.string.app_name), false);
         context = this;
         setupButtons();
+        turnDrawable = getDrawable(R.mipmap.ic_launcher);
+        turnImage = (Button) findViewById(R.id.beurtView);
+        turnImage.setBackground(turnDrawable);
+        winImage = (Button) findViewById(R.id.gewonnenView);
+
+        pechgevalWinText = (TextView) findViewById(R.id.pechgevalWinsText);
+        wegenwachtWinText = (TextView) findViewById(R.id.wegenwachtWinsText);
+        wegenwachtWin = 0;
+        pechGevalWin = 0;
+        resetScore();
     }
 
     @Override
@@ -66,84 +102,178 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
     private void setupButtons() {
         buttons = new ArrayList<>();
         //----------------------Bovenste rij------------------------------
-        Button links_boven = (Button) findViewById(R.id.links_boven);
+        links_boven = (Button) findViewById(R.id.links_boven);
         links_boven.setOnClickListener(this);
         buttons.add(links_boven);
 
-        Button midden_boven = (Button) findViewById(R.id.midden_boven);
+        midden_boven = (Button) findViewById(R.id.midden_boven);
         midden_boven.setOnClickListener(this);
         buttons.add(midden_boven);
 
-        Button rechts_boven = (Button) findViewById(R.id.rechts_boven);
+        rechts_boven = (Button) findViewById(R.id.rechts_boven);
         rechts_boven.setOnClickListener(this);
         buttons.add(rechts_boven);
 
         //--------------------Midelste rij--------------------------------
 
-        Button links_midden = (Button) findViewById(R.id.links_midden);
+        links_midden = (Button) findViewById(R.id.links_midden);
         links_midden.setOnClickListener(this);
         buttons.add(links_midden);
 
-        Button midden_midden = (Button) findViewById(R.id.midden_midden);
+        midden_midden = (Button) findViewById(R.id.midden_midden);
         midden_midden.setOnClickListener(this);
         buttons.add(midden_midden);
 
-        Button rechts_midden = (Button) findViewById(R.id.rechts_midden);
+        rechts_midden = (Button) findViewById(R.id.rechts_midden);
         rechts_midden.setOnClickListener(this);
         buttons.add(rechts_midden);
 
         //-------------------Onderste rij---------------------------------
-        Button links_onder = (Button) findViewById(R.id.links_onder);
+        links_onder = (Button) findViewById(R.id.links_onder);
         links_onder.setOnClickListener(this);
         buttons.add(links_onder);
 
-        Button midden_onder = (Button) findViewById(R.id.midden_onder);
+        midden_onder = (Button) findViewById(R.id.midden_onder);
         midden_onder.setOnClickListener(this);
         buttons.add(midden_onder);
 
-        Button rechts_onder = (Button) findViewById(R.id.rechts_onder);
+        rechts_onder = (Button) findViewById(R.id.rechts_onder);
         rechts_onder.setOnClickListener(this);
         buttons.add(rechts_onder);
     }
 
     @Override
     public void onClick(View view) {
-        Button button = (Button) view;
-        if(wisselen){
-            button.setBackground(getDrawable(R.mipmap.ic_launcher));
-            wisselen = false;
-        }else {
-            button.setBackground(getDrawable(R.mipmap.ic_auto));
-            wisselen = true;
+        if (!erIsGewoonen) {
+            Log.i(TAG, "onClick()");
+            Button button = (Button) view;
+            if (wisselen) {
+                button.setBackground(getDrawable(R.mipmap.ic_launcher));
+                button.setText("1");
+                wisselen = false;
+                turnDrawable = getDrawable(R.mipmap.ic_auto);
+                turnImage.setBackground(turnDrawable);
+            } else {
+                button.setBackground(getDrawable(R.mipmap.ic_auto));
+                button.setText("0");
+                wisselen = true;
+                turnDrawable = getDrawable(R.mipmap.ic_launcher);
+                turnImage.setBackground(turnDrawable);
+            }
         }
 
-//        switch(view.getId()) {
-//            //Bovenste rij
-//            case R.id.links_boven:
-//                break;
-//            case R.id.midden_boven:
-//                break;
-//            case R.id.rechts_boven:
-//                break;
-//            //Milderste rij
-//            case R.id.links_midden:
-//                break;
-//            case R.id.midden_midden:
-//                break;
-//            case R.id.rechts_midden:
-//                break;
-//            //Onderste rij
-//            case R.id.links_onder:
-//                break;
-//            case R.id.midden_onder:
-//                break;
-//            case R.id.rechts_onder:
-//                break;
+        if (checkForWin()) {
+            erIsGewoonen = true;
+            if(wisselen){
+                Toast.makeText(this, "Pechgeval heeft gewonnen! ", Toast.LENGTH_LONG).show();
+                pechGevalWin++;
+                winImage.setBackground(getDrawable(R.mipmap.ic_auto));
+            }else {
+                Toast.makeText(this, "Wegenwacht heeft gewonnen! ", Toast.LENGTH_LONG).show();
+                wegenwachtWin++;
+                winImage.setBackground(getDrawable(R.mipmap.ic_launcher));
+            }
+            updateScoreBoard();
+        }
     }
 
-    public void resetButtonPressed(View v){
-        for (Button button : buttons){
+    public void resetButtonPressed(View v) {
+        Log.i(TAG, "resetButtonPressed()");
+        clearPlayArea();
+        resetScore();
+    }
+
+    public void clearPlayAreaButtonPressed(View v) {
+        Log.i(TAG, "clearPlayAreaButtonPressed()");
+        clearPlayArea();
+    }
+
+    private boolean checkForWin() {
+        Log.i(TAG, "checkForWin()");
+        boolean win = false;
+        ArrayList<Boolean> winRow = new ArrayList<>();
+        winRow.add(checkTopRow());
+        winRow.add(checkMiddleRow());
+        winRow.add(checkBottomRow());
+        winRow.add(checkLeftColum());
+        winRow.add(checkMidleColum());
+        winRow.add(checkRightColum());
+        winRow.add(checkDiagonalLeft());
+        winRow.add(checkDiagonalRight());
+        for (Boolean winn : winRow) {
+            if (winn) {
+                Log.i(TAG, "Gewonnen: " + winn);
+                win = winn;
+            }
+        }
+        return win;
+    }
+
+    private void clearPlayArea() {
+        Log.i(TAG, "clearPlayArea()");
+        for (Button button : buttons) {
             button.setBackground(getDrawable(R.color.anwbWit));
         }
+        erIsGewoonen = false;
+    }
+
+    private void resetScore() {
+        Log.i(TAG, "resetScore()");
+        wegenwachtWin = 0;
+        pechGevalWin = 0;
+        updateScoreBoard();
+    }
+
+    private void updateScoreBoard(){
+        wegenwachtWinText.setText(Integer.toString(wegenwachtWin));
+        pechgevalWinText.setText(Integer.toString(pechGevalWin));
+    }
+
+    private boolean checkThreeButtons(Button button1, Button button2, Button button3) {
+        String text = "0";
+        String text2 = "1";
+        boolean returnValue;
+        if (text.equals(button1.getText()) && text.equals(button2.getText()) && text.equals(button3.getText())) {
+            returnValue = true;
+        } else {
+            if (text2.equals(button1.getText()) && text2.equals(button2.getText()) && text2.equals(button3.getText())) {
+                returnValue = true;
+            } else {
+                returnValue = false;
+            }
+        }
+        return returnValue;
+    }
+
+    private boolean checkTopRow() {
+        return checkThreeButtons(links_boven, midden_boven, rechts_boven);
+    }
+
+    private boolean checkMiddleRow() {
+        return checkThreeButtons(links_midden, midden_midden, rechts_midden);
+    }
+
+    private boolean checkBottomRow() {
+        return checkThreeButtons(links_onder, midden_onder, rechts_onder);
+    }
+
+    private boolean checkLeftColum() {
+        return checkThreeButtons(links_boven, links_midden, links_onder);
+    }
+
+    private boolean checkMidleColum() {
+        return checkThreeButtons(midden_boven, midden_midden, midden_onder);
+    }
+
+    private boolean checkRightColum() {
+        return checkThreeButtons(rechts_boven, rechts_midden, rechts_onder);
+    }
+
+    private boolean checkDiagonalLeft() {
+        return checkThreeButtons(links_boven, midden_midden, rechts_onder);
+    }
+
+    private boolean checkDiagonalRight() {
+        return checkThreeButtons(rechts_boven, midden_midden, links_onder);
     }
 }
