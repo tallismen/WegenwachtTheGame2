@@ -20,7 +20,6 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements ActionBarSupport, View.OnClickListener {
 
-    private Context context;
     private String TAG = "MainActivity";
     private ArrayList<Button> buttons;
     private boolean wisselen = true;
@@ -28,9 +27,11 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
 
     private TextView pechgevalWinText;
     private TextView wegenwachtWinText;
+    private TextView gelijkspelText;
 
     private int pechGevalWin;
     private int wegenwachtWin;
+    private int gelijkspelCount;
 
     private Button winImage;
     private Drawable turnDrawable;
@@ -54,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ToolbarUtil.setupActionBar(this, this, getString(R.string.app_name), false);
-        context = this;
         setupButtons();
         turnDrawable = getDrawable(R.mipmap.ic_launcher);
         turnImage = (Button) findViewById(R.id.beurtView);
@@ -63,8 +63,10 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
 
         pechgevalWinText = (TextView) findViewById(R.id.pechgevalWinsText);
         wegenwachtWinText = (TextView) findViewById(R.id.wegenwachtWinsText);
+        gelijkspelText = (TextView) findViewById(R.id.gelijkspelText);
         wegenwachtWin = 0;
         pechGevalWin = 0;
+        gelijkspelCount = 0;
         resetScore();
     }
 
@@ -147,34 +149,40 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
         if (!erIsGewoonen) {
             Log.i(TAG, "onClick()");
             Button button = (Button) view;
-            if (wisselen) {
-                button.setBackground(getDrawable(R.mipmap.ic_launcher));
-                button.setText("1");
-                wisselen = false;
-                turnDrawable = getDrawable(R.mipmap.ic_auto);
-                turnImage.setBackground(turnDrawable);
-            } else {
-                button.setBackground(getDrawable(R.mipmap.ic_auto));
-                button.setText("0");
-                wisselen = true;
-                turnDrawable = getDrawable(R.mipmap.ic_launcher);
-                turnImage.setBackground(turnDrawable);
+            if (button.getText().equals("3")) {
+                if (wisselen) {
+                    button.setBackground(getDrawable(R.mipmap.ic_launcher));
+                    button.setText("1");
+                    wisselen = false;
+                    turnDrawable = getDrawable(R.mipmap.ic_pechauto);
+                    turnImage.setBackground(turnDrawable);
+                } else {
+                    button.setBackground(getDrawable(R.mipmap.ic_pechauto));
+                    button.setText("0");
+                    wisselen = true;
+                    turnDrawable = getDrawable(R.mipmap.ic_launcher);
+                    turnImage.setBackground(turnDrawable);
+                }
             }
         }
-
-        if (checkForWin()) {
+        if (checkForWin() && !erIsGewoonen) {
             erIsGewoonen = true;
-            if(wisselen){
+            if (wisselen) {
                 Toast.makeText(this, "Pechgeval heeft gewonnen! ", Toast.LENGTH_LONG).show();
                 pechGevalWin++;
-                winImage.setBackground(getDrawable(R.mipmap.ic_auto));
-            }else {
+                winImage.setBackground(getDrawable(R.mipmap.ic_pechauto));
+            } else {
                 Toast.makeText(this, "Wegenwacht heeft gewonnen! ", Toast.LENGTH_LONG).show();
                 wegenwachtWin++;
                 winImage.setBackground(getDrawable(R.mipmap.ic_launcher));
             }
-            updateScoreBoard();
         }
+        if (checkGelijkSpel() && !erIsGewoonen) {
+            erIsGewoonen = true;
+            Toast.makeText(this, "Gelijkspel!", Toast.LENGTH_LONG).show();
+            gelijkspelCount++;
+        }
+        updateScoreBoard();
     }
 
     public void resetButtonPressed(View v) {
@@ -209,10 +217,25 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
         return win;
     }
 
+    private boolean checkGelijkSpel() {
+        boolean gelijkspel;
+        String gelijkspelString = "";
+        for (Button button : buttons) {
+            gelijkspelString += gelijkspelString + button.getText();
+        }
+        if (gelijkspelString.contains("3")) {
+            gelijkspel = false;
+        } else {
+            gelijkspel = true;
+        }
+        return gelijkspel;
+    }
+
     private void clearPlayArea() {
         Log.i(TAG, "clearPlayArea()");
         for (Button button : buttons) {
-            button.setBackground(getDrawable(R.color.anwbWit));
+            button.setBackground(getDrawable(R.mipmap.ic_leeg));
+            button.setText("3");
         }
         erIsGewoonen = false;
     }
@@ -221,12 +244,14 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
         Log.i(TAG, "resetScore()");
         wegenwachtWin = 0;
         pechGevalWin = 0;
+        gelijkspelCount = 0;
         updateScoreBoard();
     }
 
-    private void updateScoreBoard(){
+    private void updateScoreBoard() {
         wegenwachtWinText.setText(Integer.toString(wegenwachtWin));
         pechgevalWinText.setText(Integer.toString(pechGevalWin));
+        gelijkspelText.setText(Integer.toString(gelijkspelCount));
     }
 
     private boolean checkThreeButtons(Button button1, Button button2, Button button3) {

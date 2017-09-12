@@ -1,11 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Voorkeuren">
+        <SwitchPreference
+            android:elevation="1dp"
+            android:key="Switch"
+            android:summary="Iets aan of utizetten"
+            android:title="Switch" />
+
+    </PreferenceCategory>
     <PreferenceCategory android:title="Informatie">
         <Preference
+            android:id="@+id/preference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:icon="@drawable/wegenwacht"
             android:key="versie"
             android:summary="versie"
             android:title="@string/app_name" />
+        <Preference
+            android:icon="@mipmap/ic_designlama"
+            android:key="ontw"
+            android:summary="Maarten Lammers"
+            android:title="Ontwikkelaar" />
 
     </PreferenceCategory>
 </PreferenceScreen>

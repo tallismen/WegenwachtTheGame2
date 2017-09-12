@@ -17,11 +17,11 @@ public class ToolbarUtil {
     public static void setupActionBar(ActionBarSupport actionBarSupport, Activity activity, String title, boolean homeEnabled) {
         Log.i("ToolbarUtil","setupActionBar()");
         activity.getLayoutInflater().inflate(R.layout.toolbar, (ViewGroup) activity.findViewById(android.R.id.content));
-        Toolbar toolbar = activity.findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
         actionBarSupport.setSupportActionBar(toolbar);
         ActionBar actionBar = actionBarSupport.getSupportActionBar();
         if (actionBar != null) {
-            TextView textView = activity.findViewById(R.id.toolbar_title);
+            TextView textView = (TextView) activity.findViewById(R.id.toolbar_title);
             textView.setText(title);
             actionBar.setDisplayHomeAsUpEnabled(homeEnabled);
             actionBar.setHomeAsUpIndicator(ContextCompat.getDrawable(activity, R.drawable.ic_arrow_back));
