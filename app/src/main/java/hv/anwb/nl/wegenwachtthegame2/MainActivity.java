@@ -1,10 +1,9 @@
 package hv.anwb.nl.wegenwachtthegame2;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -12,11 +11,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements ActionBarSupport, View.OnClickListener {
 
@@ -24,6 +23,8 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
     private ArrayList<Button> buttons;
     private boolean wisselen = true;
     private boolean erIsGewoonen = false;
+    private Random random;
+    private Handler handler;
 
     private TextView pechgevalWinText;
     private TextView wegenwachtWinText;
@@ -67,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
         wegenwachtWin = 0;
         pechGevalWin = 0;
         gelijkspelCount = 0;
+        random = new Random();
+        handler = new Handler();
         resetScore();
     }
 
@@ -159,51 +162,98 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
         if (!erIsGewoonen) {
             Log.i(TAG, "onClick()");
             Button button = (Button) view;
+            buttons.remove(button);
             if (button.getText().equals("3")) {
                 if (wisselen) {
-                    button.setBackground(getDrawable(R.mipmap.ic_launcher));
-                    button.setText("1");
+                    wegenwachtZet(button);
                     wisselen = false;
-                    turnDrawable = getDrawable(R.mipmap.ic_pechauto);
-                    turnImage.setBackground(turnDrawable);
+
                 } else {
-                    button.setBackground(getDrawable(R.mipmap.ic_pechauto));
-                    button.setText("0");
+                    pechautoZet(button);
                     wisselen = true;
-                    turnDrawable = getDrawable(R.mipmap.ic_launcher);
-                    turnImage.setBackground(turnDrawable);
                 }
             }
         }
+        checkGame();
+        if (!wisselen  && !erIsGewoonen) {
+            computerZet();
+            wisselen = true;
+            checkGame();
+        }
+        updateScoreBoard();
+    }
+
+    private void checkGame(){
         if (checkForWin() && !erIsGewoonen) {
             erIsGewoonen = true;
+            clearPlayArea(5000);
             if (wisselen) {
                 Toast.makeText(this, "Pechgeval heeft gewonnen! ", Toast.LENGTH_LONG).show();
                 pechGevalWin++;
                 winImage.setBackground(getDrawable(R.mipmap.ic_pechauto));
             } else {
+                if (!wisselen) {
+                    computerZet();
+                    wisselen = true;
+                }
                 Toast.makeText(this, "Wegenwacht heeft gewonnen! ", Toast.LENGTH_LONG).show();
                 wegenwachtWin++;
                 winImage.setBackground(getDrawable(R.mipmap.ic_launcher));
             }
         }
         if (checkGelijkSpel() && !erIsGewoonen) {
+            clearPlayArea(5000);
+            if (!wisselen) {
+                computerZet();
+                wisselen = true;
+            }
             erIsGewoonen = true;
             Toast.makeText(this, "Gelijkspel!", Toast.LENGTH_LONG).show();
             gelijkspelCount++;
         }
-        updateScoreBoard();
+    }
+
+    private void computerZet() {
+        onClick(getRandomButton());
+    }
+
+    private Button getRandomButton() {
+        Log.i(TAG,"getRandomButton()");
+        int number = random.nextInt(buttons.size());
+        Log.i(TAG,"Nummer: "+number);
+        Button button = buttons.get(number);
+        Log.i(TAG,button.getText()+"");
+        if (!button.getText().equals("3")) {
+            getRandomButton();
+        } else {
+            return button;
+        }
+        return button;
+    }
+
+    private void wegenwachtZet(Button button) {
+        button.setBackground(getDrawable(R.mipmap.ic_launcher));
+        button.setText("1");
+        turnDrawable = getDrawable(R.mipmap.ic_pechauto);
+        turnImage.setBackground(turnDrawable);
+    }
+
+    private void pechautoZet(Button button) {
+        button.setBackground(getDrawable(R.mipmap.ic_pechauto));
+        button.setText("0");
+        turnDrawable = getDrawable(R.mipmap.ic_launcher);
+        turnImage.setBackground(turnDrawable);
     }
 
     public void resetButtonPressed(View v) {
         Log.i(TAG, "resetButtonPressed()");
-        clearPlayArea();
+        clearPlayArea(0);
         resetScore();
     }
 
     public void clearPlayAreaButtonPressed(View v) {
         Log.i(TAG, "clearPlayAreaButtonPressed()");
-        clearPlayArea();
+        clearPlayArea(0);
     }
 
     private boolean checkForWin() {
@@ -241,13 +291,28 @@ public class MainActivity extends AppCompatActivity implements ActionBarSupport,
         return gelijkspel;
     }
 
-    private void clearPlayArea() {
-        Log.i(TAG, "clearPlayArea()");
-        for (Button button : buttons) {
-            button.setBackground(getDrawable(R.mipmap.ic_leeg));
-            button.setText("3");
-        }
-        erIsGewoonen = false;
+    private void clearPlayArea(int delay) {
+        setupButtons();
+        final Button button = (Button) findViewById(R.id.button4);
+        final Button button1 = (Button) findViewById(R.id.button);
+        button1.setBackground(getDrawable(R.drawable.button_gray));
+        button1.setEnabled(false);
+        button.setBackground(getDrawable(R.drawable.button_gray));
+        button.setEnabled(false);
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                Log.i(TAG, "clearPlayArea()");
+                for (Button button : buttons) {
+                    button.setBackground(getDrawable(R.mipmap.ic_leeg));
+                    button.setText("3");
+                }
+                erIsGewoonen = false;
+                button.setBackground(getDrawable(R.drawable.button_orange));
+                button1.setBackground(getDrawable(R.drawable.button_blue));
+                button.setEnabled(true);
+                button1.setEnabled(true);
+            }
+        }, delay);
     }
 
     private void resetScore() {
